@@ -1,20 +1,44 @@
-import os
-from dotenv import load_dotenv
-from pydantic_settings import BaseSettings
+"""Конфигурация бота - загрузка из .env через pydantic-settings."""
 
-load_dotenv()
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
-    BOT_TOKEN: str = os.getenv("BOT_TOKEN")
-    DB_HOST: str = os.getenv("DB_HOST", "localhost")
-    DB_USER: str = os.getenv("DB_USER", "postgres")
-    DB_PASS: str = os.getenv("DB_PASS", "password")
-    DB_NAME: str = os.getenv("DB_NAME", "ai_assistant_db")
-    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY")
-    YOUGILE_KEY: str = os.getenv("YOUGILE_KEY")
+    """Все настройки приложения."""
 
-    @property
-    def database_url(self) -> str:
-        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}/{self.DB_NAME}"
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+    )
+
+    # Telegram
+    telegram_bot_token: str
+
+    # БД
+    database_url: str
+
+    # Gemini
+    gemini_api_key: str
+    gemini_model: str = "gemini-2.5-flash"
+
+    # Google Calendar OAuth2
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    google_redirect_uri: str = "http://localhost:8080/callback"
+
+    # YouGile
+    yougile_api_key: str = ""
+    yougile_base_url: str = "https://ru.yougile.com/api-v2"
+
+    # если не задан - токены хранятся без шифрования
+    encryption_key: str = ""
+
+    log_level: str = "INFO"
+    timezone: str = "Europe/Moscow"
+    max_context_messages: int = 10
+    rate_limit_rpm: int = 15
+    health_check_port: int = 8080
+
 
 settings = Settings()
